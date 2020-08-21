@@ -1,0 +1,9 @@
+README.md
+setup.py
+Python_RTSP_Stream.egg-info/PKG-INFO
+Python_RTSP_Stream.egg-info/SOURCES.txt
+Python_RTSP_Stream.egg-info/dependency_links.txt
+Python_RTSP_Stream.egg-info/top_level.txt
+source/Camera.py
+source/__init__.py
+source/load.py
