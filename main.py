@@ -63,12 +63,15 @@ def video_feed():
 
 
 if __name__ == '__main__':
-    arg = str(sys.argv[1])
-    if arg == "0":
-        load.showCamLocal()
-    elif arg == "1":
-        app.run()
-    else:
+    try:
+        arg = str(sys.argv[1])
+        if arg == "0":
+            load.showCamLocal()
+        elif arg == "1":
+            app.run()
+        else:
+            pass
+    except:
         pass
 
 #  https://rtsp-python.herokuapp.com/
