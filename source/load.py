@@ -7,7 +7,7 @@ def showCamLocal(urls = None):
         urls = ["rtsp://37.6.233.82:151/mjpeg/1"] #  , "rtsp://37.6.233.82:153/mjpeg/1"
     try:
         screen = cam.RTSP(urls, "Monitor")  # , size , 950
-        screen.get_bytes(True)
+        #screen.get_bytes(True)
         #screen.show()
     except:
         pass
@@ -20,5 +20,6 @@ def showCamWeb(urls = None):
         return Response(screen.get_bytes(False), mimetype = "multipart/x-mixed-replace; boundary=frame")
     except:
         # Show An Error Page
+        print("Error")
         pass
 

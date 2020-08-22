@@ -59,6 +59,7 @@ def video_feed():
         global ip_s_active
         return load.showCamWeb(ip_s_active)
     except:
+        print("Unexpected error:", sys.exc_info()[0])
         return render_template("Error_Message.html")
 
 
@@ -72,6 +73,7 @@ if __name__ == '__main__':
         else:
             pass
     except:
+        print("Unexpected error:", sys.exc_info()[0])
         pass
 
 #  https://rtsp-python.herokuapp.com/

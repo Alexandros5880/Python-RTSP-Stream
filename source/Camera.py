@@ -134,6 +134,98 @@ class RTSP:
                 self.connections[i] = True
 
 
+
+
+    '''
+    def show(self):
+        if len(self.urls) < 2:  # Url == 1
+            while True:
+                if self.size is not None:
+                    frame_1 = self.cam[0].get_frame(self.size)
+                else:
+                    frame_1 = self.cam[0].get_frame(1450)  # Screen size
+                self.detected = self.faceDetected(frame_1)
+                # Shows Date Time
+                RTSP.set_time_show(self.name, frame_1, self.org, self.font,
+                                   self.fontScale, self.color, self.thickness)
+                key = cv2.waitKey(1)
+                if key == 13:  # 13 is the Enter Key
+                    break
+            cv2.destroyAllWindows()
+            for i in range(len(self.cam)):
+                self.cam[i].end()
+        elif len(self.urls) < 3:  # Url == 2
+            while True:
+                if self.size is not None:
+                    frame_1 = self.cam[0].get_frame(self.size)
+                    frame_2 = self.cam[1].get_frame(self.size)
+                else:
+                    frame_1 = self.cam[0].get_frame(960)  # SCreen size / 2
+                    frame_2 = self.cam[1].get_frame(960)
+                img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                self.detected = self.faceDetected(img_concate_hori_1)
+                cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
+                # Shows Date Time
+                RTSP.set_time_show(self.name, img_concate_hori_1, self.org, self.font,
+                                   self.fontScale, self.color, self.thickness)
+                key = cv2.waitKey(1)
+                if key == 13:  # 13 is the Enter Key
+                    break
+            cv2.destroyAllWindows()
+            for i in range(len(self.cam)):
+                self.cam[i].end()
+        elif len(self.urls) < 4:  # Url == 3
+            while True:
+                if self.size is not None:
+                    frame_1 = self.cam[0].get_frame(self.size)
+                    frame_2 = self.cam[1].get_frame(self.size)
+                    frame_3 = self.cam[2].get_frame(self.size)
+                else:
+                    frame_1 = self.cam[0].get_frame(725)  # SCreen size / 4
+                    frame_2 = self.cam[1].get_frame(725)
+                    frame_3 = self.cam[2].get_frame(725)
+                img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
+                self.detected = self.faceDetected(img_concate_line)
+                cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
+                # Shows Date Time
+                RTSP.set_time_show(self.name, img_concate_line, self.org, self.font,
+                                   self.fontScale, self.color, self.thickness)
+                key = cv2.waitKey(1)
+                if key == 13:  # 13 is the Enter Key
+                    break
+            cv2.destroyAllWindows()
+            for i in range(len(self.cam)):
+                self.cam[i].end()
+        elif len(self.urls) < 5:  # Url == 4
+            while True:
+                if self.size is not None:
+                    frame_1 = self.cam[0].get_frame(self.size)
+                    frame_2 = self.cam[1].get_frame(self.size)
+                    frame_3 = self.cam[2].get_frame(self.size)
+                    frame_4 = self.cam[3].get_frame(self.size)
+                else:
+                    frame_1 = self.cam[0].get_frame(725)  # SCreen size / 4
+                    frame_2 = self.cam[1].get_frame(725)
+                    frame_3 = self.cam[2].get_frame(725)
+                    frame_4 = self.cam[3].get_frame(725)
+                img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
+                img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
+                self.detected = self.faceDetected(img_concate_line)
+                cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
+                # Shows Date Time
+                RTSP.set_time_show(self.name, img_concate_line, self.org, self.font,
+                                   self.fontScale, self.color, self.thickness)
+                key = cv2.waitKey(1)
+                if key == 13:  # 13 is the Enter Key
+                    break
+            cv2.destroyAllWindows()
+            for i in range(len(self.cam)):
+                self.cam[i].end()
+    '''
+
+
     def get_bytes(self, local):
         # Thread if lost connection reconct
         #connecting_thread = threading.Thread(target=self.reconecting, args=())
@@ -148,15 +240,13 @@ class RTSP:
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
-                    #ret, jpeg = cv2.imencode('.jpg', frame_1)
-                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
+                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    '''
                     if local == False:
                         ret, jpeg = cv2.imencode('.jpg', frame_1)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n'+bytearray(jpeg)+b'\r\n'
                     else:
-                        print("ok")
-                        '''
                         # Shows Date Time
                         RTSP.set_time_show(self.name, frame_1)
                         key = cv2.waitKey(1)
@@ -165,8 +255,7 @@ class RTSP:
                             for i in range(len(self.cam)):
                                 self.cam[i].end()
                             break
-                        '''
-
+                    '''
                 # False
                 else:
                     self.connections[0] = False
@@ -187,9 +276,9 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
-                    #ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    '''
                     if local == False:
                         ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
@@ -203,7 +292,7 @@ class RTSP:
                             for i in range(len(self.cam)):
                                 self.cam[i].end()
                             break
-
+                    '''
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
@@ -229,9 +318,9 @@ class RTSP:
                 elif frame_1 is None and frame_2 is not None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
-                    #ret, jpeg = cv2.imencode('.jpg', frame_2)
-                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-
+                    ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    '''
                     if local != True:
                         ret, jpeg = cv2.imencode('.jpg', frame_2)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
@@ -244,7 +333,7 @@ class RTSP:
                             for i in range(len(self.cam)):
                                 self.cam[i].end()
                             break
-
+                    '''
                     self.connections[0] = False
                 # Reconnecting
                 self.reconecting()
