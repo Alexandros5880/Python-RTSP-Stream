@@ -3,10 +3,10 @@ import sys
 from source import load
 
 
-
+'''
 import py_compile
 py_compile.compile('main.py')
-
+'''
 
 
 
