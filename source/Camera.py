@@ -37,23 +37,24 @@ class Camera:
         print("Cam Loading...")
         try:
             self.cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
-            print("Cam Loaded...")
-            self.run = True
-            while self.run:
-                # grab frames from the buffer
-                self.cap.grab()
-                # recieve input data
-                rec_dat = conn.recv()
-                if rec_dat == 1:
-                    # if frame requested
-                    ret, frame = self.cap.read()
-                    conn.send(frame)
-                elif rec_dat == 2:
-                    # if close requested
-                    self.cap.release()
-                    self.run = False
-            print("Camera Connection Closed")
-            conn.close()
+            if self.cap.isOpened():
+                print("Cam Loaded...")
+                self.run = True
+                while self.run:
+                    # grab frames from the buffer
+                    self.cap.grab()
+                    # recieve input data
+                    rec_dat = conn.recv()
+                    if rec_dat == 1:
+                        # if frame requested
+                        ret, frame = self.cap.read()
+                        conn.send(frame)
+                    elif rec_dat == 2:
+                        # if close requested
+                        self.cap.release()
+                        self.run = False
+                print("Camera Connection Closed")
+                conn.close()
         except:
             pass
 
@@ -120,7 +121,7 @@ class RTSP:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             break
         #print(face_rects)  # Array with the values of the faces it's detecting
-        if len(face_rects) is not  0:
+        if len(face_rects) != 0:
             return True
         else:
             return False
@@ -130,12 +131,13 @@ class RTSP:
         for i in range(len(self.connections)):
             if self.connections[i] == False:
                 self.cam[i] = Camera(self.urls[1])
+                self.connections[i] = True
 
 
     def get_bytes(self, local):
         # Thread if lost connection reconct
-        connecting_thread = threading.Thread(target=self.reconecting, args=())
-        connecting_thread.start()
+        #connecting_thread = threading.Thread(target=self.reconecting, args=())
+        #connecting_thread.start()
         if len(self.urls) < 2:  # Url == 1
             while True:
                 try:
@@ -146,29 +148,29 @@ class RTSP:
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
-                    ret, jpeg = cv2.imencode('.jpg', frame_1)
-                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
+                    #ret, jpeg = cv2.imencode('.jpg', frame_1)
+                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+
                     if local == False:
                         ret, jpeg = cv2.imencode('.jpg', frame_1)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n'+bytearray(jpeg)+b'\r\n'
                     else:
+                        print("ok")
+                        '''
                         # Shows Date Time
                         RTSP.set_time_show(self.name, frame_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
-                    '''
+                        '''
+
                 # False
                 else:
                     self.connections[0] = False
-                #self.reconecting()
-            '''
-            if not local == True:
-                cv2.destroyAllWindows()
-                for i in range(len(self.cam)):
-                    self.cam[i].end()
-            '''
+                self.reconecting()
         elif len(self.urls) < 3:  # Url == 2
             while True:
                 try:
@@ -181,28 +183,30 @@ class RTSP:
                     frame_2 = None
                 # True True
                 if frame_1 is not None and frame_2 is not None:  # If tow cameras work
-                    print("Tow Frames OK")
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
-                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
+                    #ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+
                     if local == False:
                         ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     else:
+                        print("Local")
                         # Shows Date Time
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
-                    '''
+
                 # True False
                 elif frame_1 is not None and frame_2 is None:
-                    print("First Frame OK")
-                    Camera.rescale_frame(frame_1, self.size*2)
+                    Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
@@ -215,17 +219,19 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[1] = False
                 # False True
                 elif frame_1 is None and frame_2 is not None:
-                    print("Second Frame OK")
-                    Camera.rescale_frame(frame_2, self.size*2)
+                    Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
-                    ret, jpeg = cv2.imencode('.jpg', frame_2)
-                    yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
+                    #ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+
                     if local != True:
                         ret, jpeg = cv2.imencode('.jpg', frame_2)
                         yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
@@ -234,17 +240,14 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_2)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
-                    '''
+
                     self.connections[0] = False
                 # Reconnecting
-                #self.reconecting()
-            '''
-            if not local == True:
-                cv2.destroyAllWindows()
-                for i in range(len(self.cam)):
-                    self.cam[i].end()
-            '''
+                self.reconecting()
         elif len(self.urls) < 4:  # Url == 3
             while True:
                 try:
@@ -278,6 +281,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                 # True True False
@@ -298,6 +304,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     self.connections[2] = False
                     '''
@@ -317,6 +326,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[1] = False
@@ -343,6 +355,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_3)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -365,6 +380,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -384,18 +402,15 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_2)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
                     self.connections[2] = False
                 # Reconnecting
                 #self.reconecting()
-            '''
-            if not local == True:
-                cv2.destroyAllWindows()
-                for i in range(len(self.cam)):
-                    self.cam[i].end()
-            '''
         elif len(self.urls) < 5:  # Url == 4
             while True:
                 try:
@@ -436,6 +451,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                 # False True True True
@@ -458,6 +476,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -479,6 +500,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -499,6 +523,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_4)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -529,6 +556,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -551,6 +581,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[1] = False
@@ -575,6 +608,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[1] = False
@@ -598,6 +634,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[2] = False
@@ -617,6 +656,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_2)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -638,6 +680,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_3)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[0] = False
@@ -659,6 +704,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, frame_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[1] = False
@@ -682,6 +730,9 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_hori_1)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[2] = False
@@ -706,17 +757,14 @@ class RTSP:
                         RTSP.set_time_show(self.name, img_concate_line)
                         key = cv2.waitKey(1)
                         if key == 13:  # 13 is the Enter Key
+                            cv2.destroyAllWindows()
+                            for i in range(len(self.cam)):
+                                self.cam[i].end()
                             break
                     '''
                     self.connections[3] = False
                 # Reconnecting
                 #self.reconecting()
-            '''
-            if not local == True:
-                cv2.destroyAllWindows()
-                for i in range(len(self.cam)):
-                    self.cam[i].end()
-            '''
 
 
 '''
