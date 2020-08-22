@@ -136,18 +136,17 @@ class RTSP:
 
 
 
-    '''
+
     def show(self):
         if len(self.urls) < 2:  # Url == 1
             while True:
                 if self.size is not None:
-                    frame_1 = self.cam[0].get_frame(self.size)
+                    frame_1 = self.cam[0].get_frame()
                 else:
-                    frame_1 = self.cam[0].get_frame(1450)  # Screen size
+                    frame_1 = self.cam[0].get_frame()  # Screen size
                 self.detected = self.faceDetected(frame_1)
                 # Shows Date Time
-                RTSP.set_time_show(self.name, frame_1, self.org, self.font,
-                                   self.fontScale, self.color, self.thickness)
+                RTSP.set_time_show(self.name, frame_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -157,17 +156,16 @@ class RTSP:
         elif len(self.urls) < 3:  # Url == 2
             while True:
                 if self.size is not None:
-                    frame_1 = self.cam[0].get_frame(self.size)
-                    frame_2 = self.cam[1].get_frame(self.size)
+                    frame_1 = self.cam[0].get_frame()
+                    frame_2 = self.cam[1].get_frame()
                 else:
-                    frame_1 = self.cam[0].get_frame(960)  # SCreen size / 2
-                    frame_2 = self.cam[1].get_frame(960)
+                    frame_1 = self.cam[0].get_frame()
+                    frame_2 = self.cam[1].get_frame()
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                 self.detected = self.faceDetected(img_concate_hori_1)
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
-                RTSP.set_time_show(self.name, img_concate_hori_1, self.org, self.font,
-                                   self.fontScale, self.color, self.thickness)
+                RTSP.set_time_show(self.name, img_concate_hori_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -177,20 +175,19 @@ class RTSP:
         elif len(self.urls) < 4:  # Url == 3
             while True:
                 if self.size is not None:
-                    frame_1 = self.cam[0].get_frame(self.size)
-                    frame_2 = self.cam[1].get_frame(self.size)
-                    frame_3 = self.cam[2].get_frame(self.size)
+                    frame_1 = self.cam[0].get_frame()
+                    frame_2 = self.cam[1].get_frame()
+                    frame_3 = self.cam[2].get_frame()
                 else:
-                    frame_1 = self.cam[0].get_frame(725)  # SCreen size / 4
-                    frame_2 = self.cam[1].get_frame(725)
-                    frame_3 = self.cam[2].get_frame(725)
+                    frame_1 = self.cam[0].get_frame()  # SCreen size / 4
+                    frame_2 = self.cam[1].get_frame()
+                    frame_3 = self.cam[2].get_frame()
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                 img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
                 self.detected = self.faceDetected(img_concate_line)
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
-                RTSP.set_time_show(self.name, img_concate_line, self.org, self.font,
-                                   self.fontScale, self.color, self.thickness)
+                RTSP.set_time_show(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -200,30 +197,29 @@ class RTSP:
         elif len(self.urls) < 5:  # Url == 4
             while True:
                 if self.size is not None:
-                    frame_1 = self.cam[0].get_frame(self.size)
-                    frame_2 = self.cam[1].get_frame(self.size)
-                    frame_3 = self.cam[2].get_frame(self.size)
-                    frame_4 = self.cam[3].get_frame(self.size)
+                    frame_1 = self.cam[0].get_frame()
+                    frame_2 = self.cam[1].get_frame()
+                    frame_3 = self.cam[2].get_frame()
+                    frame_4 = self.cam[3].get_frame()
                 else:
-                    frame_1 = self.cam[0].get_frame(725)  # SCreen size / 4
-                    frame_2 = self.cam[1].get_frame(725)
-                    frame_3 = self.cam[2].get_frame(725)
-                    frame_4 = self.cam[3].get_frame(725)
+                    frame_1 = self.cam[0].get_frame()  # SCreen size / 4
+                    frame_2 = self.cam[1].get_frame()
+                    frame_3 = self.cam[2].get_frame()
+                    frame_4 = self.cam[3].get_frame()
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                 img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                 img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
                 self.detected = self.faceDetected(img_concate_line)
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
-                RTSP.set_time_show(self.name, img_concate_line, self.org, self.font,
-                                   self.fontScale, self.color, self.thickness)
+                RTSP.set_time_show(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
             cv2.destroyAllWindows()
             for i in range(len(self.cam)):
                 self.cam[i].end()
-    '''
+
 
 
     def get_bytes(self, local):
