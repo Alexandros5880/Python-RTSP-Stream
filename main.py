@@ -2,6 +2,14 @@ from flask import Flask, render_template, request
 import sys
 from source import load
 
+
+
+import py_compile
+py_compile.compile('main.py')
+
+
+
+
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
