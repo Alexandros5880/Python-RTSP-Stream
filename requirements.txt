@@ -1,5 +1,5 @@
-Flask>=0.10.1
+Flask>=1.1.2
 imutils>=0.5.3
 numpy>=1.19.1
-opencv-python>=3.4.8.29
-setuptools>=45.2.0
+opencv-python>=4.4.0.42
+setuptools>=49.6.0

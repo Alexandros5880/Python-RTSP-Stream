@@ -4,11 +4,11 @@
 ifeq ($(OS), Windows_NT)
     local = python main.py 0
     server = python main.py 1
-    install_req = pip install -r requirements.txt
+    install_req = pip3 install -r requirements.txt
 else
     local = python3 main.py 0
     server = python3 main.py 1
-    install_req = pip install -r requirements.txt
+    install_req = pip3 install -r requirements.txt
 endif
 
 
