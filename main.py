@@ -41,7 +41,7 @@ def set_cam():
     except:
         return render_template("Error_Message.html")
 
-
+'''
 #  http://127.0.0.1:5000/
 @app.route("/")
 def index():
@@ -50,10 +50,10 @@ def index():
         return render_template("index.html")
     except:
         return render_template("Error_Message.html")
-
+'''
 
 #  http://127.0.0.1:5000/video_feed
-@app.route("/video_feed")
+@app.route("/")  # video_feed
 def video_feed():
     try:
         global ip_s_active
