@@ -99,7 +99,7 @@ class RTSP:
 
     @staticmethod
     def set_time_show(name, frame):
-        cv2.namedWindow(name, cv2.WINDOW_FREERATIO)
+        #cv2.namedWindow(name, cv2.WINDOW_FREERATIO)
         # Shows Date Time
         # Time Setup Variables
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -110,7 +110,6 @@ class RTSP:
         current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         cv2.putText(frame, current_time, org, font, font_scale,
                     color, thickness, cv2.LINE_AA)
-        cv2.imshow(name, frame)
 
     # Face Detected
     def faceDetected(self, frame):
@@ -132,7 +131,7 @@ class RTSP:
                 self.cam[i] = Camera(self.urls[1])
                 self.connections[i] = True
 
-    '''
+    # Create an opencv window and shows the videos
     def show(self):
         # 1 URL
         if len(self.urls) < 2:  # Url == 1
@@ -141,6 +140,7 @@ class RTSP:
                 self.detected = self.faceDetected(frame_1)
                 # Shows Date Time
                 RTSP.set_time_show(self.name, frame_1)
+                cv2.imshow(self.name, frame_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -160,6 +160,7 @@ class RTSP:
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
                 RTSP.set_time_show(self.name, img_concate_hori_1)
+                cv2.imshow(self.name, img_concate_hori_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -182,6 +183,7 @@ class RTSP:
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
                 RTSP.set_time_show(self.name, img_concate_line)
+                cv2.imshow(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
@@ -207,16 +209,16 @@ class RTSP:
                 cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
                 # Shows Date Time
                 RTSP.set_time_show(self.name, img_concate_line)
+                cv2.imshow(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
                     break
             cv2.destroyAllWindows()
             for i in range(len(self.cam)):
                 self.cam[i].end()
-    '''
 
-
-    def get_bytes(self):
+    # Return html format used for Flask
+    def get_html_format(self):
         # Thread if lost connection reconct
         #connecting_thread = threading.Thread(target=self.reconecting, args=())
         #connecting_thread.start()
@@ -230,6 +232,7 @@ class RTSP:
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # False
@@ -252,12 +255,14 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
@@ -265,6 +270,7 @@ class RTSP:
                 elif frame_1 is None and frame_2 is not None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -292,6 +298,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # True True False
@@ -301,6 +308,7 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # True False False
@@ -308,6 +316,7 @@ class RTSP:
                         and frame_3 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
@@ -323,6 +332,7 @@ class RTSP:
                         and frame_3 is not None:
                     Camera.rescale_frame(frame_3, self.size)
                     self.detected = self.faceDetected(frame_3)
+                    RTSP.set_time_show(self.name, frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -334,6 +344,7 @@ class RTSP:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -342,6 +353,7 @@ class RTSP:
                         and frame_3 is None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -377,6 +389,7 @@ class RTSP:
                     img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # False True True True
@@ -388,6 +401,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -398,6 +412,7 @@ class RTSP:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_3, frame_4), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -407,6 +422,7 @@ class RTSP:
                          frame_3 is None and frame_4 is not None:
                     Camera.rescale_frame(frame_4, self.size)
                     self.detected = self.faceDetected(frame_4)
+                    RTSP.set_time_show(self.name, frame_4)
                     ret, jpeg = cv2.imencode('.jpg', frame_4)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -426,6 +442,7 @@ class RTSP:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -437,6 +454,7 @@ class RTSP:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_4), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
@@ -450,6 +468,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
@@ -462,6 +481,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[2] = False
@@ -470,6 +490,7 @@ class RTSP:
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -480,6 +501,7 @@ class RTSP:
                          frame_3 is not None and frame_4 is None:
                     Camera.rescale_frame(frame_3, self.size)
                     self.detected = self.faceDetected(frame_3)
+                    RTSP.set_time_show(self.name, frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[0] = False
@@ -490,6 +512,7 @@ class RTSP:
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
@@ -502,6 +525,7 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[2] = False
@@ -515,16 +539,15 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[3] = False
                 # Reconnecting
                 #self.reconecting()
 
-
-
-
-    def get_data(self):
+    # Return Bytecode frame by frame
+    def get_InBytecode(self):
         # Thread if lost connection reconct
         #connecting_thread = threading.Thread(target=self.reconecting, args=())
         #connecting_thread.start()
@@ -538,21 +561,9 @@ class RTSP:
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
-
-                    img_np = cv2.imdecode(jpeg, cv2.CV_LOAD_IMAGE_COLOR)
-                    self.detected = self.faceDetected(img_np)
-                    cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
-                    # Shows Date Time
-                    RTSP.set_time_show(self.name, img_np)
-                    key = cv2.waitKey(1)
-                    if key == 13:  # 13 is the Enter Key
-                        break
-                cv2.destroyAllWindows()
-                for i in range(len(self.cam)):
-                    self.cam[i].end()
-
-                    #yield jpeg
+                    yield jpeg
                 # False
                 else:
                     self.connections[0] = False
@@ -573,12 +584,14 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
@@ -586,6 +599,7 @@ class RTSP:
                 elif frame_1 is None and frame_2 is not None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
@@ -613,6 +627,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                 # True True False
@@ -622,6 +637,7 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                 # True False False
@@ -629,6 +645,7 @@ class RTSP:
                         and frame_3 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
@@ -644,6 +661,7 @@ class RTSP:
                         and frame_3 is not None:
                     Camera.rescale_frame(frame_3, self.size)
                     self.detected = self.faceDetected(frame_3)
+                    RTSP.set_time_show(self.name, frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield jpeg
                     self.connections[0] = False
@@ -655,6 +673,7 @@ class RTSP:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -663,6 +682,7 @@ class RTSP:
                         and frame_3 is None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
@@ -698,6 +718,7 @@ class RTSP:
                     img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                 # False True True True
@@ -709,6 +730,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[0] = False
@@ -719,6 +741,7 @@ class RTSP:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_3, frame_4), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -728,6 +751,7 @@ class RTSP:
                          frame_3 is None and frame_4 is not None:
                     Camera.rescale_frame(frame_4, self.size)
                     self.detected = self.faceDetected(frame_4)
+                    RTSP.set_time_show(self.name, frame_4)
                     ret, jpeg = cv2.imencode('.jpg', frame_4)
                     yield jpeg
                     self.connections[0] = False
@@ -747,6 +771,7 @@ class RTSP:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -758,6 +783,7 @@ class RTSP:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_4), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[1] = False
@@ -771,6 +797,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[1] = False
@@ -783,6 +810,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[2] = False
@@ -791,6 +819,7 @@ class RTSP:
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_2, self.size)
                     self.detected = self.faceDetected(frame_2)
+                    RTSP.set_time_show(self.name, frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
@@ -801,6 +830,7 @@ class RTSP:
                          frame_3 is not None and frame_4 is None:
                     Camera.rescale_frame(frame_3, self.size)
                     self.detected = self.faceDetected(frame_3)
+                    RTSP.set_time_show(self.name, frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield jpeg
                     self.connections[0] = False
@@ -811,6 +841,7 @@ class RTSP:
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
+                    RTSP.set_time_show(self.name, frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
@@ -823,6 +854,7 @@ class RTSP:
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     self.detected = self.faceDetected(img_concate_hori_1)
+                    RTSP.set_time_show(self.name, img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[2] = False
@@ -836,6 +868,7 @@ class RTSP:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
                     self.detected = self.faceDetected(img_concate_line)
+                    RTSP.set_time_show(self.name, img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[3] = False
