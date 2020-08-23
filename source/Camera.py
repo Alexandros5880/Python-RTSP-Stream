@@ -93,7 +93,6 @@ class RTSP:
         if window_name is not None:
             cv2.namedWindow(self.name, cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(self.name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-
         if len(urls) > 0:
             for url in self.urls:  # Create Camera Object
                 self.cam.append(Camera(url))
@@ -133,17 +132,12 @@ class RTSP:
                 self.cam[i] = Camera(self.urls[1])
                 self.connections[i] = True
 
-
-
-
-
+    '''
     def show(self):
+        # 1 URL
         if len(self.urls) < 2:  # Url == 1
             while True:
-                if self.size is not None:
-                    frame_1 = self.cam[0].get_frame()
-                else:
-                    frame_1 = self.cam[0].get_frame()  # Screen size
+                frame_1 = self.cam[0].get_frame()  # Screen size
                 self.detected = self.faceDetected(frame_1)
                 # Shows Date Time
                 RTSP.set_time_show(self.name, frame_1)
@@ -219,10 +213,10 @@ class RTSP:
             cv2.destroyAllWindows()
             for i in range(len(self.cam)):
                 self.cam[i].end()
+    '''
 
 
-
-    def get_bytes(self, local):
+    def get_bytes(self):
         # Thread if lost connection reconct
         #connecting_thread = threading.Thread(target=self.reconecting, args=())
         #connecting_thread.start()
@@ -238,20 +232,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', frame_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n'+bytearray(jpeg)+b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                 # False
                 else:
                     self.connections[0] = False
@@ -274,41 +254,12 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        print("Local")
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     self.detected = self.faceDetected(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[1] = False
                 # False True
                 elif frame_1 is None and frame_2 is not None:
@@ -316,20 +267,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_2)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_2)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                 # Reconnecting
                 self.reconecting()
@@ -357,20 +294,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                 # True True False
                 elif frame_1 is not None and frame_2 is not None \
                         and frame_3 is None:
@@ -380,21 +303,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    self.connections[2] = False
-                    '''
                 # True False False
                 elif frame_1 is not None and frame_2 is None \
                         and frame_3 is None:
@@ -402,20 +310,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[1] = False
                     self.connections[2] = False
                 # False False False
@@ -431,20 +325,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_3)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_3)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[1] = False
                 # False True True
@@ -456,20 +336,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                 # False True False
                 elif frame_1 is None and frame_2 is not None \
@@ -478,20 +344,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_2)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_2)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[2] = False
                 # Reconnecting
@@ -527,20 +379,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                 # False True True True
                 elif frame_1 is None and frame_2 is not None and \
                         frame_3 is not None and frame_4 is not None:
@@ -552,20 +390,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                 # False False True True
                 elif frame_1 is None and frame_2 is None and \
@@ -576,20 +400,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[1] = False
                 # False False False True
@@ -599,20 +409,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_4)
                     ret, jpeg = cv2.imencode('.jpg', frame_4)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_4)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_4)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[1] = False
                     self.connections[2] = False
@@ -632,20 +428,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[3] = False
                 # True False False True
@@ -657,20 +439,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[1] = False
                     self.connections[2] = False
                 # True False True True
@@ -684,20 +452,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[1] = False
                 # True True False True
                 elif frame_1 is not None and frame_2 is not None and \
@@ -710,20 +464,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[2] = False
                 # False True False False
                 elif frame_1 is None and frame_2 is not None and \
@@ -732,20 +472,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_2)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_2)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[2] = False
                     self.connections[3] = False
@@ -756,20 +482,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_3)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_3)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[0] = False
                     self.connections[1] = False
                     self.connections[3] = False
@@ -780,20 +492,6 @@ class RTSP:
                     self.detected = self.faceDetected(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local != True:
-                        ret, jpeg = cv2.imencode('.jpg', frame_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, frame_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[1] = False
                     self.connections[2] = False
                     self.connections[3] = False
@@ -806,20 +504,6 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_hori_1)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[2] = False
                     self.connections[3] = False
                 # True True True False
@@ -833,24 +517,330 @@ class RTSP:
                     self.detected = self.faceDetected(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    '''
-                    if local == False:
-                        ret, jpeg = cv2.imencode('.jpg', img_concate_line)
-                        yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                    else:
-                        # Shows Date Time
-                        RTSP.set_time_show(self.name, img_concate_line)
-                        key = cv2.waitKey(1)
-                        if key == 13:  # 13 is the Enter Key
-                            cv2.destroyAllWindows()
-                            for i in range(len(self.cam)):
-                                self.cam[i].end()
-                            break
-                    '''
                     self.connections[3] = False
                 # Reconnecting
                 #self.reconecting()
 
+
+
+
+    def get_data(self):
+        # Thread if lost connection reconct
+        #connecting_thread = threading.Thread(target=self.reconecting, args=())
+        #connecting_thread.start()
+        if len(self.urls) < 2:  # Url == 1
+            while True:
+                try:
+                    frame_1 = self.cam[0].get_frame()
+                except:
+                    frame_1 = None
+                # True
+                if frame_1 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    self.detected = self.faceDetected(frame_1)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
+
+                    img_np = cv2.imdecode(jpeg, cv2.CV_LOAD_IMAGE_COLOR)
+                    self.detected = self.faceDetected(img_np)
+                    cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
+                    # Shows Date Time
+                    RTSP.set_time_show(self.name, img_np)
+                    key = cv2.waitKey(1)
+                    if key == 13:  # 13 is the Enter Key
+                        break
+                cv2.destroyAllWindows()
+                for i in range(len(self.cam)):
+                    self.cam[i].end()
+
+                    #yield jpeg
+                # False
+                else:
+                    self.connections[0] = False
+                self.reconecting()
+        elif len(self.urls) < 3:  # Url == 2
+            while True:
+                try:
+                    frame_1 = self.cam[0].get_frame()
+                except:
+                    frame_1 = None
+                try:
+                    frame_2 = self.cam[1].get_frame()
+                except:
+                    frame_2 = None
+                # True True
+                if frame_1 is not None and frame_2 is not None:  # If tow cameras work
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                # True False
+                elif frame_1 is not None and frame_2 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    self.detected = self.faceDetected(frame_1)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
+                    yield jpeg
+                    self.connections[1] = False
+                # False True
+                elif frame_1 is None and frame_2 is not None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    self.detected = self.faceDetected(frame_2)
+                    ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    yield jpeg
+                    self.connections[0] = False
+                # Reconnecting
+                self.reconecting()
+        elif len(self.urls) < 4:  # Url == 3
+            while True:
+                try:
+                    frame_1 = self.cam[0].get_frame()
+                except:
+                    frame_1 = None
+                try:
+                    frame_2 = self.cam[1].get_frame()
+                except:
+                    frame_2 = None
+                try:
+                    frame_3 = self.cam[2].get_frame()
+                except:
+                    frame_3 = None
+                if frame_1 is not None and frame_2 is not None \
+                        and frame_3 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                # True True False
+                elif frame_1 is not None and frame_2 is not None \
+                        and frame_3 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                # True False False
+                elif frame_1 is not None and frame_2 is None \
+                        and frame_3 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    self.detected = self.faceDetected(frame_1)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
+                    yield jpeg
+                    self.connections[1] = False
+                    self.connections[2] = False
+                # False False False
+                elif frame_1 is None and frame_2 is None \
+                        and frame_3 is None:
+                    self.connections[0] = False
+                    self.connections[1] = False
+                    self.connections[2] = False
+                # False False True
+                elif frame_1 is None and frame_2 is None \
+                        and frame_3 is not None:
+                    Camera.rescale_frame(frame_3, self.size)
+                    self.detected = self.faceDetected(frame_3)
+                    ret, jpeg = cv2.imencode('.jpg', frame_3)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[1] = False
+                # False True True
+                elif frame_1 is None and frame_2 is not None \
+                        and frame_3 is None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                    self.connections[0] = False
+                # False True False
+                elif frame_1 is None and frame_2 is not None \
+                        and frame_3 is None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    self.detected = self.faceDetected(frame_2)
+                    ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[2] = False
+                # Reconnecting
+                #self.reconecting()
+        elif len(self.urls) < 5:  # Url == 4
+            while True:
+                try:
+                    frame_1 = self.cam[0].get_frame()
+                except:
+                    frame_1 = None
+                try:
+                    frame_2 = self.cam[1].get_frame()
+                except:
+                    frame_2 = None
+                try:
+                    frame_3 = self.cam[2].get_frame()
+                except:
+                    frame_3 = None
+                try:
+                    frame_4 = self.cam[2].get_frame()
+                except:
+                    frame_4 = None
+                # True True True True
+                if frame_1 is not None and frame_2 is not None and \
+                        frame_3 is not None and frame_4 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                # False True True True
+                elif frame_1 is None and frame_2 is not None and \
+                        frame_3 is not None and frame_4 is not None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                    self.connections[0] = False
+                # False False True True
+                elif frame_1 is None and frame_2 is None and \
+                         frame_3 is not None and frame_4 is not None:
+                    Camera.rescale_frame(frame_3, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_3, frame_4), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[1] = False
+                # False False False True
+                elif frame_1 is None and frame_2 is None and \
+                         frame_3 is None and frame_4 is not None:
+                    Camera.rescale_frame(frame_4, self.size)
+                    self.detected = self.faceDetected(frame_4)
+                    ret, jpeg = cv2.imencode('.jpg', frame_4)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[1] = False
+                    self.connections[2] = False
+                # False False False False
+                elif frame_1 is None and frame_2 is None and \
+                         frame_3 is None and frame_4 is None:
+                    self.connections[0] = False
+                    self.connections[1] = False
+                    self.connections[2] = False
+                    self.connections[3] = False
+                # False True True False
+                elif frame_1 is None and frame_2 is not None and \
+                         frame_3 is not None and frame_4 is None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[3] = False
+                # True False False True
+                elif frame_1 is not None and frame_2 is None and \
+                         frame_3 is None and frame_4 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_4), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                    self.connections[1] = False
+                    self.connections[2] = False
+                # True False True True
+                elif frame_1 is not None and frame_2 is None and \
+                         frame_3 is not None and frame_4 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_3), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                    self.connections[1] = False
+                # True True False True
+                elif frame_1 is not None and frame_2 is not None and \
+                         frame_3 is None and frame_4 is not None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_4, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                    self.connections[2] = False
+                # False True False False
+                elif frame_1 is None and frame_2 is not None and \
+                         frame_3 is None and frame_4 is None:
+                    Camera.rescale_frame(frame_2, self.size)
+                    self.detected = self.faceDetected(frame_2)
+                    ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[2] = False
+                    self.connections[3] = False
+                # False False True False
+                elif frame_1 is None and frame_2 is None and \
+                         frame_3 is not None and frame_4 is None:
+                    Camera.rescale_frame(frame_3, self.size)
+                    self.detected = self.faceDetected(frame_3)
+                    ret, jpeg = cv2.imencode('.jpg', frame_3)
+                    yield jpeg
+                    self.connections[0] = False
+                    self.connections[1] = False
+                    self.connections[3] = False
+                # True False False False
+                elif frame_1 is not None and frame_2 is None and \
+                         frame_3 is None and frame_4 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    self.detected = self.faceDetected(frame_1)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
+                    yield jpeg
+                    self.connections[1] = False
+                    self.connections[2] = False
+                    self.connections[3] = False
+                # True True False False
+                elif frame_1 is not None and frame_2 is not None and \
+                         frame_3 is None and frame_4 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    self.detected = self.faceDetected(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    yield jpeg
+                    self.connections[2] = False
+                    self.connections[3] = False
+                # True True True False
+                elif frame_1 is not None and frame_2 is not None and \
+                         frame_3 is not None and frame_4 is None:
+                    Camera.rescale_frame(frame_1, self.size)
+                    Camera.rescale_frame(frame_2, self.size)
+                    Camera.rescale_frame(frame_3, self.size)
+                    img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
+                    img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
+                    self.detected = self.faceDetected(img_concate_line)
+                    ret, jpeg = cv2.imencode('.jpg', img_concate_line)
+                    yield jpeg
+                    self.connections[3] = False
+                # Reconnecting
+                #self.reconecting()
 
 '''
 #print(f"Camera is alive?: {cam.p.is_alive()}")
