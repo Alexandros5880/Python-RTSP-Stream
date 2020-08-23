@@ -41,6 +41,7 @@ def set_cam():
     except:
         return render_template("Error_Message.html")
 
+
 '''
 #  http://127.0.0.1:5000/
 @app.route("/")
@@ -69,7 +70,7 @@ if __name__ == '__main__':
         if arg == "0":
             load.showCamLocal()
         elif arg == "1":
-            app.run()
+            app.run(host='192.168.1.26')
         else:
             pass
     except:
