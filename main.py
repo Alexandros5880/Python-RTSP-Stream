@@ -42,18 +42,22 @@ def set_cam():
         return render_template("Error_Message.html")
 
 
-'''
-#  http://127.0.0.1:5000/
-@app.route("/")
+
+
+
+
+#  http://192.168.1.26:5000/stream
+@app.route("/stream")
 def index():
     try:
         # index read urls from file
         return render_template("index.html")
     except:
         return render_template("Error_Message.html")
-'''
 
-#  http://127.0.0.1:5000/video_feed
+
+'''
+#  http://127.0.0.1:5000/
 @app.route("/")  # video_feed
 def video_feed():
     try:
@@ -62,6 +66,37 @@ def video_feed():
     except:
         print("Unexpected error:", sys.exc_info()[0])
         return render_template("Error_Message.html")
+'''
+
+
+
+
+
+#  http://127.0.0.1:5000/video_feed_1
+@app.route("/video_feed_1")  # video_feed
+def video_feed_1():
+    try:
+        global ip_s_active
+        return load.showOneCamHTML("rtsp://37.6.233.82:151/mjpeg/1")
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        return render_template("Error_Message.html")
+
+
+#  http://127.0.0.1:5000/video_feed_2
+@app.route("/video_feed_2")  # video_feed
+def video_feed_2():
+    try:
+        global ip_s_active
+        return load.showOneCamHTML("rtsp://37.6.233.82:153/mjpeg/1")
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        return render_template("Error_Message.html")
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -70,12 +105,15 @@ if __name__ == '__main__':
         if arg == "0":
             load.showCamLocal()
         elif arg == "1":
-            app.run(host='192.168.1.26')
+            app.run(host='192.168.1.26')  # GLOBAL: 37.6.233.82
         else:
             pass
     except:
         print("Unexpected error:", sys.exc_info()[0])
         pass
+
+
+
 
 #  https://rtsp-python.herokuapp.com/
 #  https://rtsp-python.herokuapp.com/set_cam
