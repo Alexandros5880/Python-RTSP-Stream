@@ -3,7 +3,7 @@
 #Linux:
     make setup-lib
 #Windows:
-Download the libgl1-mesa-dev
+  Download the libgl1-mesa-dev
 
 # If you don't have Statis router ip:
 Create a server and upload the /PHP/Global Server Aplication
