@@ -1,6 +1,3 @@
-
-
-
 ifeq ($(OS), Windows_NT)
     local = python main.py 0
     server = python main.py 1
@@ -12,18 +9,10 @@ else
 endif
 
 
-
-
-
-
 clean-pyc:
 	find . -name '*.pyc' -exec rm --force {} +
 	find . -name '*.pyo' -exec rm --force {} +
 	name '*~' -exec rm --force  {} 
-
-
-
-
 
 
 upload-all:
@@ -31,11 +20,7 @@ upload-all:
 	git commit -m "New Commit"
 	git push origin master
 	git push heroku master --force
-
-
-
-
-
+	
 
 upload-git:
 	git add *
@@ -43,14 +28,8 @@ upload-git:
 	git push origin master
 
 
-
-
-
 upload-heroku:
 	git push heroku master --force
-
-
-
 
 
 update-requirements:
@@ -58,32 +37,8 @@ update-requirements:
 	#pip3 install pipreqs > requirements.txt
 
 
-
-
-update-constrains:
-	pip install -c constraints.txt
-
-
-
-
-
-
-
-
-
 install-requarements:
 	$(install_req)
-
-
-
-
-install:
-	sudo apt install -y apparmor apturl && pip3 install -r requirements.txt
-
-
-
-
-
 
 
 run-local:
@@ -96,5 +51,5 @@ run-server:
 
 
 setup-lib:
-	apt-get update
-	apt-get install -y libgl1-mesa-dev
+	sudo apt-get update
+	sudo apt-get install -y libgl1-mesa-dev

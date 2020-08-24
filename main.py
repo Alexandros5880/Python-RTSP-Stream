@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request
 import sys
 from source import load
-
+# Update my Global Ip in a server
+from source import UpdateGlobalIp
+from source import myThread
+from source.myThread import scheduled
 
 '''
 import py_compile
@@ -46,6 +49,8 @@ def set_cam():
 
 
 
+
+
 #  http://192.168.1.26:5000/stream
 @app.route("/stream")
 def index():
@@ -67,8 +72,6 @@ def video_feed():
         print("Unexpected error:", sys.exc_info()[0])
         return render_template("Error_Message.html")
 '''
-
-
 
 
 
@@ -99,13 +102,18 @@ def video_feed_2():
 
 
 
+
 if __name__ == '__main__':
     try:
         arg = str(sys.argv[1])
         if arg == "0":
             load.showCamLocal()
         elif arg == "1":
-            app.run(host='192.168.1.26')  # GLOBAL: 37.6.233.82
+            # Scheduled Job every 1 hour upgrade the global ip on the get and way server PHP
+            updaterIP = scheduled(1, UpdateGlobalIp.make_http_request, None)
+            server = scheduled(0, app.run, '192.168.1.26') # Threading the aplication flask server
+            updaterIP.start()
+            server.start()
         else:
             pass
     except:
@@ -113,11 +121,3 @@ if __name__ == '__main__':
         pass
 
 
-
-
-#  https://rtsp-python.herokuapp.com/
-#  https://rtsp-python.herokuapp.com/set_cam
-#  https://rtsp-python.herokuapp.com/video_feed
-
-
-#  libgl1-mesa-glx
