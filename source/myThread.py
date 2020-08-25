@@ -9,10 +9,13 @@ class scheduled:
         self.wait = wait
         self.func = func
         self.arg = arg
-        self.thread = Thread(target=self.scheduler, args=(self.wait, self.func, self.arg))
+        if arg is not None:
+            self.thread = Thread(target=self.scheduler, args=(self.wait, self.func, self.arg))
+        else:
+            self.thread = Thread(target=self.scheduler, args=(self.wait, self.func))
 
     @staticmethod
-    def scheduler(wait, func, arg):
+    def scheduler(wait, func, arg=None):
         previusTime = 0
         while True:
             currentTime = datetime.datetime.now().hour
