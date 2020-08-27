@@ -134,6 +134,12 @@ class RTSP:
             self.cam = Camera(self.url)
             self.connection = True
 
+    # Helper Function Inside THe the video loops
+    def inside_video_frame(self, frame):
+        self.detected = RTSP.faceDetected(frame)
+        # Shows Date Time
+        RTSP.set_time_show(frame)
+
     # Return html format used for Flask one url per time
     def get_html_format_one(self):
         while True:
@@ -150,8 +156,7 @@ class RTSP:
             # True
             if self.frame is not None:
                 Camera.rescale_frame(self.frame, self.size)
-                detected = RTSP.faceDetected(self.frame)
-                RTSP.set_time_show(self.frame)
+                self.inside_video_frame(self.frame)
                 ret, jpeg = cv2.imencode('.jpg', self.frame)
                 yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
             # False
