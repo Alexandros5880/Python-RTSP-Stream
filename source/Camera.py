@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import _pickle
 
 import cv2
@@ -159,6 +160,8 @@ class RTSP:
                 self.inside_video_frame(self.frame)
                 ret, jpeg = cv2.imencode('.jpg', self.frame)
                 yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                #yield bytearray(jpeg)
+                #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + self.frame + b'\r\n'
             # False
             else:
                 RTSP.cam = Camera(self.url)
@@ -183,6 +186,7 @@ class RTSPS:
             self.name = window_name
             self.detected = False
             self.connections = [True, True, True, True]
+            print("HERE")
             if window_name is not None:
                 cv2.namedWindow(self.name, cv2.WND_PROP_FULLSCREEN)
                 cv2.setWindowProperty(self.name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)

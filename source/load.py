@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from flask import Response
 from source import Camera as cam
 

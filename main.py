@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from flask import Flask, render_template, request
 import sys
 from source import load
@@ -50,8 +51,9 @@ def set_cam():
 
 
 
-
-
+load_rtsp_1 = None
+load_rtsp_2 = None
+load_rtsps = None
 
 
 
