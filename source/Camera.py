@@ -226,10 +226,8 @@ class RTSPS:
                 self.connections[i] = True
 
     # Helper Function Inside THe the video loops
-    def inside_video_frame(self, frame, window_name=None):
+    def inside_video_frame(self, frame):
         self.detected = RTSP.faceDetected(frame)
-        if window_name is not None:
-            cv2.namedWindow(self.name, cv2.WINDOW_FREERATIO)
         # Shows Date Time
         RTSP.set_time_show(frame)
 
@@ -239,7 +237,7 @@ class RTSPS:
         if len(self.urls) < 2:  # Url == 1
             while True:
                 frame_1 = self.cam[0].get_frame()  # Screen size
-                self.inside_video_frame(frame_1, self.name)
+                self.inside_video_frame(frame_1)
                 cv2.imshow(self.name, frame_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
@@ -256,7 +254,7 @@ class RTSPS:
                     frame_1 = self.cam[0].get_frame()
                     frame_2 = self.cam[1].get_frame()
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                self.inside_video_frame(img_concate_hori_1, self.name)
+                self.inside_video_frame(img_concate_hori_1)
                 cv2.imshow(self.name, img_concate_hori_1)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
@@ -276,7 +274,7 @@ class RTSPS:
                     frame_3 = self.cam[2].get_frame()
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                 img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
-                self.inside_video_frame(img_concate_line, self.name)
+                self.inside_video_frame(img_concate_line)
                 cv2.imshow(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
@@ -299,7 +297,7 @@ class RTSPS:
                 img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                 img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                 img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
-                self.inside_video_frame(img_concate_line, self.name)
+                self.inside_video_frame(img_concate_line)
                 cv2.imshow(self.name, img_concate_line)
                 key = cv2.waitKey(1)
                 if key == 13:  # 13 is the Enter Key
@@ -319,14 +317,15 @@ class RTSPS:
                 # True
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
+                    # Select Local and server Together
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # False
                 else:
                     self.connections[0] = False
                 self.reconecting()
-        elif len(self.urls) < 3:  # Url == 2
+        if len(self.urls) < 3:  # Url == 2
             while True:
                 try:
                     frame_1 = self.cam[0].get_frame()
@@ -341,22 +340,25 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
+                    # Select Local and server Together
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
+                    # Select Local and server Together
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
                     self.connections[1] = False
                 # False True
                 elif frame_1 is None and frame_2 is not None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
-                    ret, jpeg = cv2.imencode('.jpg', frame_2)
+                    self.inside_video_frame(frame_2)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                 # Reconnecting
                 self.reconecting()
@@ -381,25 +383,28 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                 # True True False
                 elif frame_1 is not None and frame_2 is not None \
                         and frame_3 is None:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                 # True False False
                 elif frame_1 is not None and frame_2 is None \
                         and frame_3 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[1] = False
                     self.connections[2] = False
                 # False False False
@@ -412,9 +417,10 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is None \
                         and frame_3 is not None:
                     Camera.rescale_frame(frame_3, self.size)
-                    self.inside_video_frame(frame_3, self.name)
+                    self.inside_video_frame(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[1] = False
                 # False True True
@@ -423,21 +429,23 @@ class RTSPS:
                     Camera.rescale_frame(frame_2, self.size)
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                 # False True False
                 elif frame_1 is None and frame_2 is not None \
                         and frame_3 is None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
+                    self.inside_video_frame(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[2] = False
                 # Reconnecting
-                #self.reconecting()
+                self.reconecting()
         elif len(self.urls) < 5:  # Url == 4
             while True:
                 try:
@@ -466,9 +474,10 @@ class RTSPS:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                 # False True True True
                 elif frame_1 is None and frame_2 is not None and \
                         frame_3 is not None and frame_4 is not None:
@@ -477,9 +486,10 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                 # False False True True
                 elif frame_1 is None and frame_2 is None and \
@@ -487,18 +497,20 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_3, frame_4), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[1] = False
                 # False False False True
                 elif frame_1 is None and frame_2 is None and \
                          frame_3 is None and frame_4 is not None:
                     Camera.rescale_frame(frame_4, self.size)
-                    self.inside_video_frame(frame_4, self.name)
+                    self.inside_video_frame(frame_4)
                     ret, jpeg = cv2.imencode('.jpg', frame_4)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[1] = False
                     self.connections[2] = False
@@ -515,9 +527,10 @@ class RTSPS:
                     Camera.rescale_frame(frame_2, self.size)
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[3] = False
                 # True False False True
@@ -526,9 +539,10 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_4), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
-                    ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
+                    self.inside_video_frame(img_concate_hori_1)
+                    ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[1] = False
                     self.connections[2] = False
                 # True False True True
@@ -539,9 +553,10 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[1] = False
                 # True True False True
                 elif frame_1 is not None and frame_2 is not None and \
@@ -551,17 +566,19 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[2] = False
                 # False True False False
                 elif frame_1 is None and frame_2 is not None and \
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
+                    self.inside_video_frame(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[2] = False
                     self.connections[3] = False
@@ -569,9 +586,10 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is None and \
                          frame_3 is not None and frame_4 is None:
                     Camera.rescale_frame(frame_3, self.size)
-                    self.inside_video_frame(frame_3, self.name)
+                    self.inside_video_frame(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[0] = False
                     self.connections[1] = False
                     self.connections[3] = False
@@ -579,9 +597,10 @@ class RTSPS:
                 elif frame_1 is not None and frame_2 is None and \
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[1] = False
                     self.connections[2] = False
                     self.connections[3] = False
@@ -591,9 +610,10 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[2] = False
                     self.connections[3] = False
                 # True True True False
@@ -604,12 +624,13 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
+                    self.connections[1] = False
                     self.connections[3] = False
                 # Reconnecting
-                #self.reconecting()
+                self.reconecting()
 
     # Return Bytecode frame by frame
     def get_InBytecode(self):
@@ -622,7 +643,7 @@ class RTSPS:
                 # True
                 if frame_1 is not None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                 # False
@@ -644,20 +665,20 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                 # True False
                 elif frame_1 is not None and frame_2 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
                 # False True
                 elif frame_1 is None and frame_2 is not None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
+                    self.inside_video_frame(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
@@ -684,7 +705,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                 # True True False
@@ -693,14 +714,14 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                 # True False False
                 elif frame_1 is not None and frame_2 is None \
                         and frame_3 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
@@ -715,7 +736,7 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is None \
                         and frame_3 is not None:
                     Camera.rescale_frame(frame_3, self.size)
-                    self.inside_video_frame(frame_3, self.name)
+                    self.inside_video_frame(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield jpeg
                     self.connections[0] = False
@@ -726,7 +747,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_2, self.size)
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -734,13 +755,13 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is not None \
                         and frame_3 is None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
+                    self.inside_video_frame(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
                     self.connections[2] = False
                 # Reconnecting
-                #self.reconecting()
+                self.reconecting()
         elif len(self.urls) < 5:  # Url == 4
             while True:
                 try:
@@ -769,7 +790,7 @@ class RTSPS:
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_hori_2 = np.concatenate((frame_3, frame_4), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, img_concate_hori_2), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                 # False True True True
@@ -780,7 +801,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[0] = False
@@ -790,7 +811,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_3, frame_4), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -799,7 +820,7 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is None and \
                          frame_3 is None and frame_4 is not None:
                     Camera.rescale_frame(frame_4, self.size)
-                    self.inside_video_frame(frame_4, self.name)
+                    self.inside_video_frame(frame_4)
                     ret, jpeg = cv2.imencode('.jpg', frame_4)
                     yield jpeg
                     self.connections[0] = False
@@ -818,7 +839,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_2, self.size)
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_2, frame_3), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[0] = False
@@ -843,7 +864,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_3), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[1] = False
@@ -855,7 +876,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_4, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_4), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[2] = False
@@ -863,7 +884,7 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is not None and \
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_2, self.size)
-                    self.inside_video_frame(frame_2, self.name)
+                    self.inside_video_frame(frame_2)
                     ret, jpeg = cv2.imencode('.jpg', frame_2)
                     yield jpeg
                     self.connections[0] = False
@@ -873,7 +894,7 @@ class RTSPS:
                 elif frame_1 is None and frame_2 is None and \
                          frame_3 is not None and frame_4 is None:
                     Camera.rescale_frame(frame_3, self.size)
-                    self.inside_video_frame(frame_3, self.name)
+                    self.inside_video_frame(frame_3)
                     ret, jpeg = cv2.imencode('.jpg', frame_3)
                     yield jpeg
                     self.connections[0] = False
@@ -883,7 +904,7 @@ class RTSPS:
                 elif frame_1 is not None and frame_2 is None and \
                          frame_3 is None and frame_4 is None:
                     Camera.rescale_frame(frame_1, self.size)
-                    self.inside_video_frame(frame_1, self.name)
+                    self.inside_video_frame(frame_1)
                     ret, jpeg = cv2.imencode('.jpg', frame_1)
                     yield jpeg
                     self.connections[1] = False
@@ -895,7 +916,7 @@ class RTSPS:
                     Camera.rescale_frame(frame_1, self.size)
                     Camera.rescale_frame(frame_2, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
-                    self.inside_video_frame(img_concate_hori_1, self.name)
+                    self.inside_video_frame(img_concate_hori_1)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_hori_1)
                     yield jpeg
                     self.connections[2] = False
@@ -908,9 +929,9 @@ class RTSPS:
                     Camera.rescale_frame(frame_3, self.size)
                     img_concate_hori_1 = np.concatenate((frame_1, frame_2), axis=1)
                     img_concate_line = np.concatenate((img_concate_hori_1, frame_3), axis=0)
-                    self.inside_video_frame(img_concate_line, self.name)
+                    self.inside_video_frame(img_concate_line)
                     ret, jpeg = cv2.imencode('.jpg', img_concate_line)
                     yield jpeg
                     self.connections[3] = False
                 # Reconnecting
-                #self.reconecting()
+                self.reconecting()

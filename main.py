@@ -68,7 +68,7 @@ def setup_web_cameras(option):
     elif option == "2":
         load_rtsps = load.Load()
         url_s = ["rtsp://37.6.233.82:151/mjpeg/1", "rtsp://37.6.233.82:153/mjpeg/1"]
-        load_rtsps.setup_showCamWeb(url_s, None, 500)
+        load_rtsps.setup_showCamWeb(url_s, None, 500)  # "Glifada House"
 
 
 
