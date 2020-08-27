@@ -186,7 +186,6 @@ class RTSPS:
             self.name = window_name
             self.detected = False
             self.connections = [True, True, True, True]
-            print("HERE")
             if window_name is not None:
                 cv2.namedWindow(self.name, cv2.WND_PROP_FULLSCREEN)
                 cv2.setWindowProperty(self.name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
