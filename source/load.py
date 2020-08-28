@@ -19,7 +19,7 @@ class Load:
         return Response(self.rtsp.get_html_format_one(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
     # Setup Many WEB   NOT USED
-    def setup_showCamWeb(self, urls, window_name=None, size_frame=500):
+    def setup_showCamWeb(self, urls, window_name="", size_frame=500):
         self.screen = cam.RTSPS(urls, window_name, size_frame)  # , size , 950
 
     # Run Many WEB     NOT USED
@@ -27,7 +27,7 @@ class Load:
         return Response(self.screen.get_html_format(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
     # Setup Many Local
-    def setup_local(self, urls, window_name, size_screen=500):
+    def setup_local(self, urls, window_name="", size_screen=500):
         self.screen_local = cam.RTSPS(urls, window_name, size_screen)
 
     # Show Many Local

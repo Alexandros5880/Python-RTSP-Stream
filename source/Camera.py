@@ -86,17 +86,13 @@ class Camera:
 
 class RTSP:
 
-    def __init__(self, url, window_name=None, size_frame=1000):
+    def __init__(self, url, size_frame=1000):
         try:
             self.url = url
             self.size = size_frame
-            self.name = window_name
             self.detected = False
             self.connection = True
             self.frame = None
-            if window_name is not None:
-                cv2.namedWindow(self.name, cv2.WND_PROP_FULLSCREEN)
-                cv2.setWindowProperty(self.name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
             self.cam = Camera(url)
         except:
             self.cam = Camera(url)
@@ -160,8 +156,6 @@ class RTSP:
                 self.inside_video_frame(self.frame)
                 ret, jpeg = cv2.imencode('.jpg', self.frame)
                 yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + bytearray(jpeg) + b'\r\n'
-                #yield bytearray(jpeg)
-                #yield b'--frame\r\n'b'Content-Type:image/jpeg\r\n\r\n' + self.frame + b'\r\n'
             # False
             else:
                 RTSP.cam = Camera(self.url)
